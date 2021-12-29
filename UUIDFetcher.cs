@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Sylvie.Helper
+namespace UUIDFetcher.Helper
 {
     public class UUIDFetcher
     {
