@@ -1,39 +1,27 @@
-using System.Text;
+using System;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
-namespace UUIDFetcher.Helper
+namespace UUIDFetcher;
+
+public class UUIDFetcher
 {
-    public class UUIDFetcher
-    {
-        public static async Task<string> GetUUID(string name) {
-            
-            string json;
-            using (var client = new HttpClient())
-            {
-                json = await client.GetStringAsync($"https://api.mojang.com/users/profiles/minecraft/{name}");
-            }
+    public static async Task<string> GetUUID(string name) {
+        
+        using var client = new HttpClient();
+        var json = await client.GetStringAsync($"https://api.mojang.com/users/profiles/minecraft/{name}");
 
-            var datas = JsonConvert.DeserializeObject<ProfileResponse>(json);
-            if (datas is null) return null;                                   
+        if (Convert.ToString(JsonDocument.Parse(json).RootElement.GetProperty("id")) is not { } id) throw new Exception("Player not Found!");
+        
 
-            var uuid = new StringBuilder();
-
-            for(var i = 0; i < datas.id.Length; i++) {
-                uuid.Append(datas.id[i]);
-                if(i is 7 or 11 or 15 or 19) {                    
-                    uuid.Append("-");
-                }
-            }
-
-            return uuid.ToString();
+        var uuid = new StringBuilder();
+        for (var i = 0; i < id.Length; i++) {
+            uuid.Append(id[i]);
+            if (i is 7 or 11 or 15 or 19) uuid.Append("-");
         }
-    }
 
-    public class ProfileResponse
-    {
-        public string name {get;set;}
-        public string id {get;set;}
+        return uuid.ToString();
     }
 }
